@@ -8,7 +8,6 @@ def export_round(directory):
     pass
 
 # Used to import and visualise the results of a simulation
-# Only meant to be used in this file.
 
 class Display:
 
@@ -26,6 +25,3 @@ class Display:
     # export a picture of the population graph
     def gen_pop_graph(self):
         pass
-
-if __name__ == "__main__":
-    pass

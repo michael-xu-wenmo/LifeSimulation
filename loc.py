@@ -4,6 +4,7 @@ class Loc:
         self.pos = pos
         self.entity = entity
         self.food = food
+        # potential temperature attribute?
     
     def get_pos(self):
         return self.pos
