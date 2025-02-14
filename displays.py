@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import json
 
 # call after every round
+def init_record(directory):
+    pass
+
 def export_round(directory):
     '''Outputs a json file to the given directory containing the data of this round and a map of the distribution of the current population'''
     pass
