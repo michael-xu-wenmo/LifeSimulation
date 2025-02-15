@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import cv2
 import json
 import os
 
@@ -43,7 +44,7 @@ class Displays:
             record_file.close()
     
     # generate the frames used to create the sim video in a seperate folder
-    def gen_frames(self):
+    def gen_frames(self, identifier = None): 
         # get world size
         with open(f"{self.directory}/world_config.json", "r", encoding="utf-8") as config_file:
             config = json.loads(config_file.read())
@@ -56,12 +57,40 @@ class Displays:
                 round_data = json.loads(round_file.read())
                 round_file.close()
 
-            # unfinished
+            round_num = round_data['round']
+            round_pop = round_data['population']
+            genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
+
+            frame, axs = plt.subplots(1,1)
+            frame.suptitle(f"Round: {round_num} | Population: {round_pop}")
+            x = list(map(lambda entities: entities[1][0], round_data["entities"]))
+            y = list(map(lambda entities: entities[1][1], round_data["entities"]))
+            axs.scatter(x,y, c = genomes, s = 1)
+
+            frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
 
     # use the previously generated frames to create a sim video
     def gen_video(self):
         pass
 
     # export a picture of the population graph
-    def gen_pop_graph(self):
-        pass
+    def gen_pop_graph(self, identifier = None):
+        rounds = []
+        population_change = []
+        round_files = os.listdir(f"{self.directory}/rounds_json/") # a list of all the round files
+        for round_file_name in round_files:
+            with open(f"{self.directory}/rounds_json/{round_file_name}", "r", encoding='utf-8') as round_file:
+                round_data = json.loads(round_file.read())
+                round_file.close()
+
+            round_num = round_data['round']
+            round_pop = round_data['population']
+            rounds.append(round_num)
+            population_change.append(round_pop)
+        
+        graph, axs = plt.subplots(1,1)
+        graph.suptitle("Population graph")
+        axs.plot(rounds, population_change)
+        axs.set_ylabel("Population")
+        axs.set_xlabel("Rounds")
+        graph.savefig(f"{self.directory}/population_graph")
