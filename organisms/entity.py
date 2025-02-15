@@ -15,26 +15,26 @@ import random
 # Effectors (methods) determin output (e.g. the directions; performance determined by gene)
 
 
-class Entity(object):
-    def __init__(self, genome):
+class Entity(ABC):
+    def __init__(self, genome: bytes, pos):
         # god defined attribute:
-        self._genome = genome # Sets the hyperparameters of the nn and other attributes according to the genome
+        self.genome = genome # Sets the hyperparameters of the nn and other attributes according to the genome
+        self.pos = pos
 
         # physical attributes: defined by the gene. The entity cannot even change it.
         self.act_eff_neu = {"move":(0,0)}
-        self.act_rec_neu = {"pos":(), "reach":[], "sight":[]}
+        self.act_rec_neu = {"pos":(), "reach":[], "sight":[]} # inner states that gets refreshed every round
         self.SIGHT = 1
         self.REACH = 1
         self.SPEED = 1 # locs per round
 
-        # inner state
-        self.engery = None
+    # geter functions
+    def get_genome(self):
+        return self.genome
+    
+    def get_pos(self):
+        return self.pos
 
-    def do(self):
-        # move randomly
-        d_x = random.randint(-1,1)
-        d_y = random.randint(-1,1)
-        x = random.randint(0,self.SPEED) * d_x
-        y = random.randint(0,self.SPEED) * d_y
-        self.act_eff_neu['move'] = (x,y)
-        return self.act_eff_neu
+    @abstractmethod
+    def process(self):
+        return self.act_rec_neu

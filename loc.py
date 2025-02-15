@@ -7,7 +7,7 @@ class Loc:
 
         self.move_requests = []
         # potential temperature attribute?
-    
+
     # god functions
     def add_entity(self, entity):
         if self.entity == None:
