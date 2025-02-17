@@ -4,15 +4,18 @@ import organisms
 import numpy as np
 from numpy import random
 
-def _gen_genome(chromosomes: int):
-    """a generator to give randomly assign an integer (0,256) to correspond to a chromosome"""
-    cc = 0
-    while cc < chromosomes:
-        yield random.randint(0,256)
-        cc += 1
 
+class World:
 
-class World():
+    @staticmethod
+    def gen_genome():
+        receptor = bytes([random.randint(0,256) for _ in range(3)]).hex()
+        input_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
+        hidden_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
+        output_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
+        effector = bytes([random.randint(0,256) for _ in range(3)]).hex()
+        return f"{receptor}|{input_layor}|{hidden_layor}|{output_layor}|{effector}"
+
     def __init__(self, width, height):
         self.round = 0
 
@@ -27,7 +30,7 @@ class World():
         inner_state = {
             "round": self.round,
             "population": self.population,
-            "entities": list(map(lambda entity: (entity.get_genome().hex(),entity.get_pos()),self.entities))
+            "entities": list(map(lambda entity: (entity.get_genome(),entity.get_pos()),self.entities))
         }
         return inner_state
 
@@ -41,12 +44,15 @@ class World():
             random.shuffle(self.init_pop_map)
             self.init_pop_map = self.init_pop_map.reshape(self.height,self.width)
     
-    def populate(self, entity_chromosomes):
+    def set_pop_map(self, distribution):
+        self.init_pop_map = distribution
+
+    def populate(self, type:str, disabled = []):
         """Populate the world with the given distribution map"""
         for row in range(self.height):
             for column in range(self.width):
                 if self.init_pop_map[row][column]: # type: ignore
-                    entity = organisms.Dummy_entity(bytes(_gen_genome(entity_chromosomes)),(column, row))
+                    entity  = getattr(organisms, type)(World.gen_genome(), (column,row), disabled)
                     
                     success = self.locs[row][column].add_entity(entity)
                     if success:
@@ -58,3 +64,5 @@ class World():
     def gen_food(self, number, distribution):
         # return the inital set of foods.
         return
+    
+    # world regulation funcs

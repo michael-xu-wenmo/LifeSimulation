@@ -1,5 +1,5 @@
 class Loc:
-
+    # a class used to regulate the an entity.
     def __init__(self, pos):
         self.POS = pos
         self.entity = None

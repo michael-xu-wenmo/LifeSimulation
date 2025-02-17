@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
-import cv2
+import moviepy as mp
 import json
 import os
+
+# A class used to record the simulation to a given folder.
 
 class Displays:
     def __init__(self, directory, world):
@@ -59,19 +61,20 @@ class Displays:
 
             round_num = round_data['round']
             round_pop = round_data['population']
-            genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
+            #genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
 
             frame, axs = plt.subplots(1,1)
             frame.suptitle(f"Round: {round_num} | Population: {round_pop}")
             x = list(map(lambda entities: entities[1][0], round_data["entities"]))
             y = list(map(lambda entities: entities[1][1], round_data["entities"]))
-            axs.scatter(x,y, c = genomes, s = 1)
+            axs.scatter(x,y, s = 1)
 
             frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
 
     # use the previously generated frames to create a sim video
-    def gen_video(self):
-        pass
+    def gen_video(self, fps: int):
+        image_clips = [mp.ImageClip(f"{self.directory}/rounds_frames/{frame}") for frame in os.listdir(f"{self.directory}/rounds_frames")]
+        # unfinished
 
     # export a picture of the population graph
     def gen_pop_graph(self, identifier = None):

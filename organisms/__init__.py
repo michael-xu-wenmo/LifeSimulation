@@ -1,1 +1,1 @@
-from organisms.dummy_entity import Dummy_entity
+from organisms.dummy import Dummy

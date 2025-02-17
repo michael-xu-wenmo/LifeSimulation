@@ -5,7 +5,7 @@ import random
 
 # Receptors (inner attributes) passively receives input from the Loc (e.g. surrounding entities density; the sensitivities are determined by gene)
 
-# (Potentially a brain??? How to simulate logical thinking?)
+# Potentially a way to simulate learning as well as natural selection? The time complexity will be insane.
 
 # Prameters to the input layor (receptor neuron) (in_feature = <Whatever receptors are activated>, out_feature = <Whatever width are setted by gene>)
 # Forward through the hidden layors (relay neuron) (depth determined by gene; weight determined by gene)
@@ -14,19 +14,45 @@ import random
 
 # Effectors (methods) determin output (e.g. the directions; performance determined by gene)
 
+# GENE ENCODING:
+# "{Receptor stats}|{Input layor}|{Hidden layor}|{Output layor}|{Effector stats}"
+# Receptors: b"\{GlOBAL_POSITION}\{SIGHT}\{REACH}\" Could add more in the futur
+# Input Layor: b"\{Output Width}\{Wiring Matrix}"
+# Hidden Lyour: b"\{Depth}\{Wiring Matrix}"
+# Output Layour: b"\"{Wiring Matrix}"
+# Effectors: b"\{MOVE}\{EAT}\{KILL}" Could add more in the futur
+
+SENSORS = ["sight", "reach", "global_position"]
+# global_position: if <128 then off else on
+# sight: the Locs around it that it can see (see meaning have access to the Loc's information which includes the entity it stores and the entity's geter functions)
+# reach: the Locs around it that it can reach(hence apply its effectors of "eat" and "kill")
+
+EFFECTORS= ["move", "eat", "reproduce", "kill"]
+# move: the range it can go each round
+# eat: the nutrition multiplier it gets from food
+# reproduce: the number of offsprings one can reproduce 
 
 class Entity(ABC):
-    def __init__(self, genome: bytes, pos):
+
+    def __init__(self, genome: str, pos: tuple[int,int], disabled: list[str] = []):
         # god defined attribute:
         self.genome = genome # Sets the hyperparameters of the nn and other attributes according to the genome
         self.pos = pos
+ 
+        self.points = 0 # inner stat
 
-        # physical attributes: defined by the gene. The entity cannot even change it.
-        self.act_eff_neu = {"move":(0,0)}
-        self.act_rec_neu = {"pos":(), "reach":[], "sight":[]} # inner states that gets refreshed every round
-        self.SIGHT = 1
-        self.REACH = 1
-        self.SPEED = 1 # locs per round
+        sensor_code, input_code, hidden_code, output_code, effector_code = self.genome.split('|')
+        # sensors created with corresponding sensor strengths
+        sensor_code = bytes.fromhex(sensor_code)
+        self.sensor_attri = {SENSORS[sensor_count]: sensor_code[sensor_count] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
+        self.sensor = {SENSORS[sensor_count]: [] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
+
+        # effectors created with corresponding effector strength
+        effector_code = bytes.fromhex(effector_code)
+        self.effectors_attri = {EFFECTORS[effector_count]: effector_code[effector_count] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
+        self.effectors = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
+
+        # Neurons (unimplemented yet :( )
 
     # geter functions
     def get_genome(self):
@@ -34,7 +60,10 @@ class Entity(ABC):
     
     def get_pos(self):
         return self.pos
-
+    
+    def get_points(self):
+        return self.points
+    
     @abstractmethod
-    def process(self):
-        return self.act_rec_neu
+    def __call__(self):
+        return self.effectors
