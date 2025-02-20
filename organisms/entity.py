@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import random
 
 # an abstract class used as a template to create different species
 
@@ -36,21 +35,21 @@ class Entity(ABC):
 
     def __init__(self, genome: str, pos: tuple[int,int], disabled: list[str] = []):
         # god defined attribute:
-        self.genome = genome # Sets the hyperparameters of the nn and other attributes according to the genome
-        self.pos = pos # a utility attribute that only the World/Loc should access. The entity itself shouldn't use it.
+        self.genome: str = genome # Sets the hyperparameters of the nn and other attributes according to the genome
+        self.pos: tuple[int, int] = pos # a utility attribute that only the World/Loc should access. The entity itself shouldn't use it.
  
         self.points = 0 # inner stat
 
         sensor_code, input_code, hidden_code, output_code, effector_code = self.genome.split('|')
         # sensors created with corresponding sensor strengths
         sensor_code = bytes.fromhex(sensor_code)
-        self.sensor_attri = {SENSORS[sensor_count]: sensor_code[sensor_count] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
-        self.sensor = {SENSORS[sensor_count]: [] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
+        self.sensor_attri: dict[str, int] = {SENSORS[sensor_count]: sensor_code[sensor_count] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
+        self.sensor: dict[str, list] = {SENSORS[sensor_count]: [] for sensor_count in range(len(sensor_code)) if SENSORS[sensor_count] not in disabled}
 
         # effectors created with corresponding effector strength
         effector_code = bytes.fromhex(effector_code)
-        self.effectors_attri = {EFFECTORS[effector_count]: effector_code[effector_count] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
-        self.effectors = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
+        self.effectors_attri: dict[str, int] = {EFFECTORS[effector_count]: effector_code[effector_count] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
+        self.effectors: dict[str, list] = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
 
         # Neurons (unimplemented yet :( )
     

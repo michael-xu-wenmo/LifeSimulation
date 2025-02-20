@@ -12,6 +12,7 @@ def main():
 
     world.gen_pop_map(POPULATION)
     world.populate("Dummy")
+    world.update()
 
     historian = Displays("dev_sim_records", world)
     historian.export_round() # round 0
@@ -21,13 +22,14 @@ def main():
         world.round += 1
         utilities.progress_bar(world.round, ROUNDS)
 
-        # 1. update all entities
-        world.update_receptor()
-        # 2. all entities process their effectors
-        world.update_process()
-        # 3. resolve all requests
-
+        # 1. all entities process their effectors
+        world.process()
+        # 2. resolve all requests
+        world.resolve_requests()
+        # 3. update world status
+        world.update()
         # 4. historian export the current world state
+        historian.export_round()
 
     print("\nSIMULATION ENDED")
 

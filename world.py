@@ -23,8 +23,10 @@ class World:
 
         self.width = dim[0]
         self.height = dim[1]
-        self.locs = np.array([[Loc((x,y)) for x in range(self.width)] for y in range(self.height)])
+        self.locs= np.array([[Loc((x,y)) for x in range(self.width)] for y in range(self.height)])
         self.entities: set[Entity] = set()
+        self.occupied_locs: list[Loc] = []
+        self.requested_locs: list[Loc] = []
         self.population = len(self.entities)
         print("FINISHED INITIALISING")
 
@@ -74,18 +76,47 @@ class World:
     
     # simulation methods
     
-    def update_receptor(self):
+    def update(self):
         """update each entities' receptor"""
-        occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))
-        for loc in occupied_locs:
+        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))
+        for loc in self.occupied_locs:
             loc.give_pos() # update the "global_position" sensor
 
-    def update_process(self):
+    # request senders
+    def request_move(self, entity: Entity, data: list):
+        max_range: int = entity.get_effectors_attri("move")
+        new_x = entity.get_pos()[0] + round(data[0]*max_range)
+        new_y = entity.get_pos()[1] + round(data[1]*max_range)
+        try:
+            self.locs[(new_y,new_x)].request("move",entity) # type: ignore
+            self.requested_locs.append(self.locs[(new_y,new_x)]) # type: ignore
+        except IndexError:
+            pass
+
+    def move(self, entities: list[Entity], target_loc: Loc):
+        entity = entities[0]
+        current_loc = self.locs[(entity.get_pos()[1],entity.get_pos()[0])]
+        current_loc.remove_entity()
+        target_loc.add_entity(entity)
+        entity.pos = target_loc.POS
+
+    def process(self):
         """pass data through each entity's processor and link it to the corresponding loc"""
-        for entity in self.entities:
-            entity() # process its actions
+        for loc in self.occupied_locs:
+            entity = loc.entity # process its actions
+            if entity == None:
+                continue
+            requests = entity()
+            for request, data in requests.items():
+                if data == []:
+                    continue
+                getattr(self, f"request_{request}")(entity,data)
 
     def resolve_requests(self):
         """resolve each request in each loc"""
-
-        pass
+        for loc in self.requested_locs:
+            deserved = loc.respond()
+            for request, data in deserved.items():
+                if data == []:
+                    continue
+                getattr(self, request)(data, loc)

@@ -5,7 +5,9 @@ import random
 class Dummy(Entity):
 
     def __call__(self):
-        
+        x: float = random.random()
+        y: float = random.random()
+        self.effectors["move"] = [x,y]
         return self.effectors
 
 if __name__ == "__main__":

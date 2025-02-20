@@ -6,11 +6,12 @@ class Loc:
         self.POS = pos
         self.entity : Entity|None = None
         self.food = None
-
-        self.move_requests = []
         # potential temperature attribute?
 
-    # god functions
+        self.requests: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]}
+        self.deserved: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]}
+
+    # actions
     def add_entity(self, entity: Entity):
         if self.entity == None:
             self.entity = entity
@@ -55,18 +56,22 @@ class Loc:
         return 
 
     # requests done to the Loc
-    def reproduce_request(self, parent):
-        pass
-
-    def kill_request(self, attacker):
-        pass
-
-    def eat_request(self, eater):
-        pass
-
-    def move_request(self, entity):
-        pass
+    def request(self, req_type: str, entity: Entity):
+        self.requests[req_type].append(entity)
 
     # resolve the requests and determines who die
+    def resolve_move(self, entities: list[Entity]):
+        deserved = entities[0]
+        for entity in entities:
+            if entity.get_points() > deserved.get_points():
+                deserved = entity
+        self.deserved["move"] = [deserved]
+
     def respond(self):
-        pass
+        self.deserved: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]}
+        for request, entities in self.requests.items():
+            if entities == []:
+                continue
+            getattr(self, f"resolve_{request}")(entities)
+        self.requests: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]} #refresh the request lists
+        return self.deserved
