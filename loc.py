@@ -1,51 +1,63 @@
+from organisms.entity import Entity
+
 class Loc:
     # a class used to regulate the an entity.
     def __init__(self, pos):
         self.POS = pos
-        self.entity = None
+        self.entity : Entity|None = None
         self.food = None
 
         self.move_requests = []
         # potential temperature attribute?
 
     # god functions
-    def add_entity(self, entity):
+    def add_entity(self, entity: Entity):
         if self.entity == None:
             self.entity = entity
-            return 1
+            return True
         else:
-            return 0
+            return False
     
     def remove_entity(self):
         self.entity = None
-        return 1
+        return True
     
     def remove_food(self):
         if self.food != None:
             del self.food
             self.food = None
-            return 1
+            return True
         else:
-            return 0
+            return False
     
     def add_food(self, food):
         if self.food == None:
             self.food = food
-            return 1
+            return True
         else:
-            return 0
+            return False
     
-    # methods used by the entity to get the Loc's data
-    def get_pos(self):
-        return self.POS
+    # methods used to set the entity's inputs
+    def give_pos(self):
+        try:
+            weight = self.entity.get_sensor_attri("global_position") # type: ignore
+            if weight >= 128:
+                self.entity.receive("global_position", [self.POS]) # type: ignore
+            return True
+        
+        except AttributeError:
+            return False
     
-    def get_entity(self):
-        return self.entity
+    def give_entity(self):
+        return
     
-    def get_food(self):
-        return self.food
+    def give_food(self):
+        return 
 
     # requests done to the Loc
+    def reproduce_request(self, parent):
+        pass
+
     def kill_request(self, attacker):
         pass
 

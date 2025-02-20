@@ -22,12 +22,12 @@ import random
 # Output Layour: b"\"{Wiring Matrix}"
 # Effectors: b"\{MOVE}\{EAT}\{KILL}" Could add more in the futur
 
-SENSORS = ["sight", "reach", "global_position"]
+SENSORS: list[str] = ["sight", "reach", "global_position"]
 # global_position: if <128 then off else on
 # sight: the Locs around it that it can see (see meaning have access to the Loc's information which includes the entity it stores and the entity's geter functions)
 # reach: the Locs around it that it can reach(hence apply its effectors of "eat" and "kill")
 
-EFFECTORS= ["move", "eat", "reproduce", "kill"]
+EFFECTORS: list[str]= ["move", "eat", "reproduce", "kill"]
 # move: the range it can go each round
 # eat: the nutrition multiplier it gets from food
 # reproduce: the number of offsprings one can reproduce 
@@ -37,7 +37,7 @@ class Entity(ABC):
     def __init__(self, genome: str, pos: tuple[int,int], disabled: list[str] = []):
         # god defined attribute:
         self.genome = genome # Sets the hyperparameters of the nn and other attributes according to the genome
-        self.pos = pos
+        self.pos = pos # a utility attribute that only the World/Loc should access. The entity itself shouldn't use it.
  
         self.points = 0 # inner stat
 
@@ -53,17 +53,29 @@ class Entity(ABC):
         self.effectors = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
 
         # Neurons (unimplemented yet :( )
+    
+    # seter function to give input
+
+    def receive(self, sensor:str, value:list) -> dict[str, list]:
+        self.sensor[sensor] = value
+        return self.sensor
 
     # geter functions
-    def get_genome(self):
+    def get_genome(self) -> str:
         return self.genome
     
-    def get_pos(self):
+    def get_pos(self) -> tuple[int, int]:
         return self.pos
     
-    def get_points(self):
+    def get_points(self) -> int:
         return self.points
     
+    def get_sensor_attri(self, sensor:str) -> int:
+        return self.sensor_attri[sensor]
+    
+    def get_effectors_attri(self, effector:str)  -> int:
+        return self.effectors_attri[effector]
+    
     @abstractmethod
-    def __call__(self):
+    def __call__(self) -> dict[str, list]:
         return self.effectors

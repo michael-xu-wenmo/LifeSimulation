@@ -4,7 +4,8 @@ import random
 # Dummy class. Reproduces asexually. No neuronetwork determining its actions.
 class Dummy(Entity):
 
-    def __call__(self): # type: ignore
+    def __call__(self):
+        
         return self.effectors
 
 if __name__ == "__main__":

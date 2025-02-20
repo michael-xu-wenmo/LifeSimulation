@@ -1,42 +1,40 @@
 from world import World
 from displays import Displays
+import utilities
 
 def main():
-    ROUNDS= 120
+    ROUNDS = 10
     FPS = 30 
     WORLD_SIZE = (128,128)
-    POPULATION = 1000
+    POPULATION = 10
 
-    print("Initialising the world...")
-    world = World(WORLD_SIZE[0],WORLD_SIZE[1])
+    world = World(WORLD_SIZE)
 
-    print("Populating the world...")
     world.gen_pop_map(POPULATION)
     world.populate("Dummy")
 
-    print("Exporting initial world state...")
     historian = Displays("dev_sim_records", world)
     historian.export_round() # round 0
 
-    print("Start Simulating...")
-    while world.round < ROUNDS:
-        ### Some how I have to make this O(n) time. n is the population###
-        # 1. update all entities
-
-
-        # 2. all entities process their effectors
-        # 3. send requests to Locs with their effectors output
-        # 4. resolve all requests
-        # 5. historian export the current world state
-
+    print("SIMULATION STARTED...")
+    for _ in range(ROUNDS):
         world.round += 1
+        utilities.progress_bar(world.round, ROUNDS)
 
-    print("Simulation Ended")
+        # 1. update all entities
+        world.update_receptor()
+        # 2. all entities process their effectors
+        world.update_process()
+        # 3. resolve all requests
 
-    print("Generating frames...")
+        # 4. historian export the current world state
+
+    print("\nSIMULATION ENDED")
+
+    # historian record the history
     historian.gen_frames()
     historian.gen_pop_graph()
 
 if __name__ == '__main__':
     main()
-    print("Done")
+    print("PROGRAM ENDED")

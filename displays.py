@@ -1,3 +1,5 @@
+from world import World
+
 import matplotlib.pyplot as plt
 import moviepy as mp
 import json
@@ -6,21 +8,20 @@ import os
 # A class used to record the simulation to a given folder.
 
 class Displays:
-    def __init__(self, directory, world):
-        
+    def __init__(self, directory, world: World):
         self.directory = directory
         self.world = world
 
         # initiate the folder
         try:
-            print("Initialise directory...")
+            print("INITIALISING DIRECTORY...")
             os.mkdir(self.directory)
             jsons_dir = self.directory + "/rounds_json"
             frames_dir = self.directory + "/rounds_frames"
             os.mkdir(jsons_dir)
             os.mkdir(frames_dir)
         except FileExistsError:
-            print("Directory Exits")
+            print("DIRECTORY EXISTS")
 
         # create a world_config file
         file_name = self.directory + "/world_config.json"
@@ -35,6 +36,8 @@ class Displays:
         with open(file_name, "w", encoding="utf-8") as gitignore:
             gitignore.write("*")
             gitignore.close()
+        
+        print("DIRECTORY INITIALISED")
 
     def export_round(self):
         round_data = self.world.export()
@@ -47,6 +50,7 @@ class Displays:
     
     # generate the frames used to create the sim video in a seperate folder
     def gen_frames(self, identifier = None): 
+        print("GENERATING FRAMES...")
         # get world size
         with open(f"{self.directory}/world_config.json", "r", encoding="utf-8") as config_file:
             config = json.loads(config_file.read())
@@ -70,6 +74,7 @@ class Displays:
             axs.scatter(x,y, s = 1)
 
             frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
+        print("FRAMES GENERATED")
 
     # use the previously generated frames to create a sim video
     def gen_video(self, fps: int):
@@ -78,6 +83,7 @@ class Displays:
 
     # export a picture of the population graph
     def gen_pop_graph(self, identifier = None):
+        print("GENERATING POPULATION GRAGH...")
         rounds = []
         population_change = []
         round_files = os.listdir(f"{self.directory}/rounds_json/") # a list of all the round files
@@ -97,3 +103,4 @@ class Displays:
         axs.set_ylabel("Population")
         axs.set_xlabel("Rounds")
         graph.savefig(f"{self.directory}/population_graph")
+        print("GRAPH GENERATED")
