@@ -1,6 +1,7 @@
 from loc import Loc
 import organisms
 from organisms.entity import Entity # only for typing
+import utilities
 
 import numpy as np
 from numpy import random
@@ -18,7 +19,7 @@ class World:
         return f"{receptor}|{input_layor}|{hidden_layor}|{output_layor}|{effector}"
 
     def __init__(self, dim: tuple[int,int]):
-        print("INITIALISING THE WORLD...")
+        print("Initialising the world - ", end = '')
         self.round = 0
 
         self.width = dim[0]
@@ -28,7 +29,7 @@ class World:
         self.occupied_locs: list[Loc] = []
         self.requested_locs: list[Loc] = []
         self.population = len(self.entities)
-        print("FINISHED INITIALISING")
+        print("Done")
 
     # export internal state to a dictionary
     def export(self):
@@ -39,23 +40,23 @@ class World:
         }
         return inner_state
 
-    # setup methods
+    #### setup methods ###
     def gen_pop_map(self, population: int):
         """generated a psuedorandom distribution map of the entities"""
-        print("GENERATING POPULATION MAP...")
+        print("Generating the population map - ", end = '')
         if population <= self.width * self.height:
             self.init_pop_map = [ True for _ in range(population)]
             self.init_pop_map += [False for _ in range(self.width*self.height - population)]
             self.init_pop_map = np.array(self.init_pop_map)
             random.shuffle(self.init_pop_map)
             self.init_pop_map = self.init_pop_map.reshape(self.height,self.width)
-        print("FINSIHED GENERATING")
+        print("Done")
     
     def set_pop_map(self, distribution):
         self.init_pop_map = distribution
 
     def populate(self, type:str, disabled = []):
-        print("POPULATING THE WORLD...")
+        print("Populating the world - ", end = '')
         """Populate the world with the given distribution map"""
         for row in range(self.height):
             for column in range(self.width):
@@ -68,13 +69,13 @@ class World:
                     else:
                         del entity
         self.population = len(self.entities)
-        print("FINISHED POPULATING")
+        print("Done")
 
     def gen_food(self, number, distribution):
         # return the inital set of foods.
         return
     
-    # simulation methods
+    #### simulation methods ###
     
     def update(self):
         """update each entities' receptor"""
@@ -93,13 +94,6 @@ class World:
         except IndexError:
             pass
 
-    def move(self, entities: list[Entity], target_loc: Loc):
-        entity = entities[0]
-        current_loc = self.locs[(entity.get_pos()[1],entity.get_pos()[0])]
-        current_loc.remove_entity()
-        target_loc.add_entity(entity)
-        entity.pos = target_loc.POS
-
     def process(self):
         """pass data through each entity's processor and link it to the corresponding loc"""
         for loc in self.occupied_locs:
@@ -112,6 +106,14 @@ class World:
                     continue
                 getattr(self, f"request_{request}")(entity,data)
 
+    # perform actions
+    def move(self, entities: list[Entity], target_loc: Loc):
+        entity = entities[0]
+        current_loc = self.locs[(entity.get_pos()[1],entity.get_pos()[0])]
+        current_loc.remove_entity()
+        target_loc.add_entity(entity)
+        entity.pos = target_loc.POS
+
     def resolve_requests(self):
         """resolve each request in each loc"""
         for loc in self.requested_locs:
@@ -120,3 +122,17 @@ class World:
                 if data == []:
                     continue
                 getattr(self, request)(data, loc)
+    
+    # simulation loop
+    def __call__(self, total_rounds: int, historian):
+        print("Starting the simulation:")
+        for _ in range(total_rounds):
+            self.round += 1
+            utilities.progress_bar(self.round, total_rounds)
+
+            self.process()
+            self.resolve_requests()
+            self.update()
+            # historian recording the history
+            historian.export_round()
+        print(f'\nDone - Data exported to "{historian.directory}"')

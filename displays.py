@@ -1,7 +1,8 @@
 from world import World
+import utilities
 
 import matplotlib.pyplot as plt
-import moviepy as mp
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import json
 import os
 
@@ -13,15 +14,18 @@ class Displays:
         self.world = world
 
         # initiate the folder
-        try:
-            print("INITIALISING DIRECTORY...")
-            os.mkdir(self.directory)
-            jsons_dir = self.directory + "/rounds_json"
-            frames_dir = self.directory + "/rounds_frames"
-            os.mkdir(jsons_dir)
-            os.mkdir(frames_dir)
-        except FileExistsError:
-            print("DIRECTORY EXISTS")
+        count = 1
+        while os.path.exists(self.directory):
+            print(f'Directory "{self.directory}" already exists - Renaming to "{self.directory}({count})"')
+            self.directory = f"{self.directory}({count})"
+            count += 1
+
+        print("Initialising directory - ", end = '')
+        os.mkdir(self.directory)
+        jsons_dir = self.directory + "/rounds_json"
+        frames_dir = self.directory + "/rounds_frames"
+        os.mkdir(jsons_dir)
+        os.mkdir(frames_dir)
 
         # create a world_config file
         file_name = self.directory + "/world_config.json"
@@ -37,7 +41,7 @@ class Displays:
             gitignore.write("*")
             gitignore.close()
         
-        print("DIRECTORY INITIALISED")
+        print(f'Directory {self.directory} initialised')
 
     def export_round(self):
         round_data = self.world.export()
@@ -50,7 +54,7 @@ class Displays:
     
     # generate the frames used to create the sim video in a seperate folder
     def gen_frames(self, identifier = None): 
-        print("GENERATING FRAMES...")
+        print("Generating frames:")
         # get world size
         with open(f"{self.directory}/world_config.json", "r", encoding="utf-8") as config_file:
             config = json.loads(config_file.read())
@@ -58,7 +62,11 @@ class Displays:
         x_range, y_range = config["world_size"] # to spec the x and y bounds of the plot
         round_files = os.listdir(f"{self.directory}/rounds_json/") # a list of all the round files
 
+        count = 0
+        total = len(round_files)
         for round_file_name in round_files:
+            count += 1
+            utilities.progress_bar(count,total)
             with open(f"{self.directory}/rounds_json/{round_file_name}", "r", encoding='utf-8') as round_file:
                 round_data = json.loads(round_file.read())
                 round_file.close()
@@ -69,21 +77,27 @@ class Displays:
 
             frame, axs = plt.subplots(1,1)
             frame.suptitle(f"Round: {round_num} | Population: {round_pop}")
+            axs.set_xlim(0, x_range)
+            axs.set_ylim(0, y_range)
             x = list(map(lambda entities: entities[1][0], round_data["entities"]))
             y = list(map(lambda entities: entities[1][1], round_data["entities"]))
             axs.scatter(x,y, s = 1)
 
             frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
-        print("FRAMES GENERATED")
+            plt.close(frame)
+            del frame
+            del axs
+        print(f'\nDone - Frames exported to "{self.directory}/rounds_frames"')
 
     # use the previously generated frames to create a sim video
     def gen_video(self, fps: int):
-        image_clips = [mp.ImageClip(f"{self.directory}/rounds_frames/{frame}") for frame in os.listdir(f"{self.directory}/rounds_frames")]
-        # unfinished
+        image_files = [f"{self.directory}/rounds_frames/frame_{frame}.png" for frame in range(len(os.listdir(f"{self.directory}/rounds_frames")))]
+        clip = ImageSequenceClip(image_files, fps=fps)
+        clip.write_videofile(f"{self.directory}/sim_recording.mp4", codec='libx264')
 
     # export a picture of the population graph
     def gen_pop_graph(self, identifier = None):
-        print("GENERATING POPULATION GRAGH...")
+        print("Generating population graph - ", end = '')
         rounds = []
         population_change = []
         round_files = os.listdir(f"{self.directory}/rounds_json/") # a list of all the round files
@@ -103,4 +117,5 @@ class Displays:
         axs.set_ylabel("Population")
         axs.set_xlabel("Rounds")
         graph.savefig(f"{self.directory}/population_graph")
-        print("GRAPH GENERATED")
+        plt.close(graph)
+        print(f'Graph generated in "{self.directory}"')

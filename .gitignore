@@ -1,0 +1,6 @@
+# ignore system files
+.DS_Store
+
+# ignore __pycache__ files
+/__pycache__/
+/organisms/__pycache__/

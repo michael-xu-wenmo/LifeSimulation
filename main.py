@@ -3,39 +3,25 @@ from displays import Displays
 import utilities
 
 def main():
-    ROUNDS = 10
+    ROUNDS = 120
     FPS = 30 
     WORLD_SIZE = (128,128)
-    POPULATION = 10
+    POPULATION = 1000
+    FOLDER = "dev_sim_records"
 
     world = World(WORLD_SIZE)
-
     world.gen_pop_map(POPULATION)
     world.populate("Dummy")
     world.update()
 
-    historian = Displays("dev_sim_records", world)
+    historian = Displays(FOLDER, world)
     historian.export_round() # round 0
 
-    print("SIMULATION STARTED...")
-    for _ in range(ROUNDS):
-        world.round += 1
-        utilities.progress_bar(world.round, ROUNDS)
+    world(ROUNDS, historian)
 
-        # 1. all entities process their effectors
-        world.process()
-        # 2. resolve all requests
-        world.resolve_requests()
-        # 3. update world status
-        world.update()
-        # 4. historian export the current world state
-        historian.export_round()
-
-    print("\nSIMULATION ENDED")
-
-    # historian record the history
     historian.gen_frames()
     historian.gen_pop_graph()
+    historian.gen_video(FPS)
 
 if __name__ == '__main__':
     main()
