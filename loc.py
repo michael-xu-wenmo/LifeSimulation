@@ -68,7 +68,7 @@ class Loc:
         self.deserved["move"] = [deserved]
 
     def respond(self):
-        self.deserved: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]}
+        self.deserved: dict[str,list[Entity]] = {"move":[], "kill":[], "reproduce":[], "eat":[]} #refresh the derserved list
         for request, entities in self.requests.items():
             if entities == []:
                 continue

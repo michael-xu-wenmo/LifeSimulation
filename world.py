@@ -47,7 +47,7 @@ class World:
         if population <= self.width * self.height:
             self.init_pop_map = [ True for _ in range(population)]
             self.init_pop_map += [False for _ in range(self.width*self.height - population)]
-            self.init_pop_map = np.array(self.init_pop_map)
+            self.init_pop_map = np.asarray(self.init_pop_map)
             random.shuffle(self.init_pop_map)
             self.init_pop_map = self.init_pop_map.reshape(self.height,self.width)
         print("Done")
@@ -61,8 +61,7 @@ class World:
         for row in range(self.height):
             for column in range(self.width):
                 if self.init_pop_map[row][column]: # type: ignore
-                    entity  = getattr(organisms, type)(World.gen_genome(), (column,row), disabled)
-                    
+                    entity  = getattr(organisms, type)(World.gen_genome(), (column,row), disabled) 
                     success = self.locs[row][column].add_entity(entity)
                     if success:
                         self.entities.add(entity)
@@ -83,9 +82,27 @@ class World:
         for loc in self.occupied_locs:
             loc.give_pos() # update the "global_position" sensor
 
-    # request senders
+    # # request senders
+    # def request_move(self, entity: Entity, data: list):
+    #     max_range: int = round(entity.get_effectors_attri("move")/32)
+    #     dx = round(data[0]*max_range)
+    #     dy = round(data[1]*max_range)
+    #     x = entity.get_pos()[0]
+    #     y = entity.get_pos()[1]
+        
+    #     # try:
+    #     #     scale = 0.1
+    #     #     while self.locs[round(entity.get_pos()[0] + scale*dx),round(entity.get_pos()[1] + scale*dy)].entity == None and scale <= 1: # type: ignore
+    #     #         x = round(entity.get_pos()[0] + scale*dx)
+    #     #         y = round(entity.get_pos()[1] + scale*dy)
+    #     #         scale += 0.1
+    #     #     self.locs[(x,y)].request("move",entity) # type: ignore
+    #     #     self.requested_locs.append(self.locs[(x,y)]) # type: ignore
+    #     # except IndexError:
+    #     #     return
+
     def request_move(self, entity: Entity, data: list):
-        max_range: int = entity.get_effectors_attri("move")
+        max_range: int = round(entity.get_effectors_attri("move")/32)
         new_x = entity.get_pos()[0] + round(data[0]*max_range)
         new_y = entity.get_pos()[1] + round(data[1]*max_range)
         try:
@@ -110,9 +127,10 @@ class World:
     def move(self, entities: list[Entity], target_loc: Loc):
         entity = entities[0]
         current_loc = self.locs[(entity.get_pos()[1],entity.get_pos()[0])]
-        current_loc.remove_entity()
-        target_loc.add_entity(entity)
-        entity.pos = target_loc.POS
+        success = target_loc.add_entity(entity)
+        if success:
+            current_loc.remove_entity()
+            entity.pos = target_loc.POS
 
     def resolve_requests(self):
         """resolve each request in each loc"""

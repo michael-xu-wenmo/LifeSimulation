@@ -16,8 +16,8 @@ class Displays:
         # initiate the folder
         count = 1
         while os.path.exists(self.directory):
-            print(f'Directory "{self.directory}" already exists - Renaming to "{self.directory}({count})"')
-            self.directory = f"{self.directory}({count})"
+            print(f'Directory "{self.directory}" already exists - Renaming to "{directory}({count})"')
+            self.directory = f"{directory}({count})"
             count += 1
 
         print("Initialising directory - ", end = '')
@@ -73,7 +73,7 @@ class Displays:
 
             round_num = round_data['round']
             round_pop = round_data['population']
-            #genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
+            genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
 
             frame, axs = plt.subplots(1,1)
             frame.suptitle(f"Round: {round_num} | Population: {round_pop}")
@@ -81,7 +81,7 @@ class Displays:
             axs.set_ylim(0, y_range)
             x = list(map(lambda entities: entities[1][0], round_data["entities"]))
             y = list(map(lambda entities: entities[1][1], round_data["entities"]))
-            axs.scatter(x,y, s = 1)
+            axs.scatter(x,y, s = 1, c = genomes)
 
             frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
             plt.close(frame)

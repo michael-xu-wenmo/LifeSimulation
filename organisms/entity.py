@@ -15,11 +15,11 @@ from abc import ABC, abstractmethod
 
 # GENE ENCODING:
 # "{Receptor stats}|{Input layor}|{Hidden layor}|{Output layor}|{Effector stats}"
-# Receptors: b"\{GlOBAL_POSITION}\{SIGHT}\{REACH}\" Could add more in the futur
+# Receptors: b"\{SIGHT}\{REACH}\{GlOBAL_POSITION}" Could add more in the futur
 # Input Layor: b"\{Output Width}\{Wiring Matrix}"
 # Hidden Lyour: b"\{Depth}\{Wiring Matrix}"
 # Output Layour: b"\"{Wiring Matrix}"
-# Effectors: b"\{MOVE}\{EAT}\{KILL}" Could add more in the futur
+# Effectors: b"\{MOVE}\{EAT}\{REPRODUCE}\{KILL}" Could add more in the futur
 
 SENSORS: list[str] = ["sight", "reach", "global_position"]
 # global_position: if <128 then off else on
@@ -28,8 +28,9 @@ SENSORS: list[str] = ["sight", "reach", "global_position"]
 
 EFFECTORS: list[str]= ["move", "eat", "reproduce", "kill"]
 # move: the range it can go each round
-# eat: the nutrition multiplier it gets from food
+# eat: the weight it has when averaging the food nutrients
 # reproduce: the number of offsprings one can reproduce 
+# kill: the damage multiplier the entity has
 
 class Entity(ABC):
 

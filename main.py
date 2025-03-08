@@ -3,10 +3,10 @@ from displays import Displays
 import utilities
 
 def main():
-    ROUNDS = 120
+    ROUNDS = 240
     FPS = 30 
     WORLD_SIZE = (128,128)
-    POPULATION = 1000
+    POPULATION = 128*128
     FOLDER = "dev_sim_records"
 
     world = World(WORLD_SIZE)
