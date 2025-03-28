@@ -15,7 +15,7 @@ class World:
         input_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
         hidden_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
         output_layor = bytes([random.randint(0,256) for _ in range(0)]).hex()
-        effector = bytes([random.randint(0,256) for _ in range(3)]).hex()
+        effector = bytes([random.randint(0,256) for _ in range(4)]).hex()
         return f"{receptor}|{input_layor}|{hidden_layor}|{output_layor}|{effector}"
 
     def __init__(self, dim: tuple[int,int]):
@@ -78,38 +78,39 @@ class World:
     
     def update(self):
         """update each entities' receptor"""
-        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))
+        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))#
         for loc in self.occupied_locs:
             loc.give_pos() # update the "global_position" sensor
 
-    # # request senders
-    # def request_move(self, entity: Entity, data: list):
-    #     max_range: int = round(entity.get_effectors_attri("move")/32)
-    #     dx = round(data[0]*max_range)
-    #     dy = round(data[1]*max_range)
-    #     x = entity.get_pos()[0]
-    #     y = entity.get_pos()[1]
-        
-    #     # try:
-    #     #     scale = 0.1
-    #     #     while self.locs[round(entity.get_pos()[0] + scale*dx),round(entity.get_pos()[1] + scale*dy)].entity == None and scale <= 1: # type: ignore
-    #     #         x = round(entity.get_pos()[0] + scale*dx)
-    #     #         y = round(entity.get_pos()[1] + scale*dy)
-    #     #         scale += 0.1
-    #     #     self.locs[(x,y)].request("move",entity) # type: ignore
-    #     #     self.requested_locs.append(self.locs[(x,y)]) # type: ignore
-    #     # except IndexError:
-    #     #     return
-
+    # request senders
     def request_move(self, entity: Entity, data: list):
         max_range: int = round(entity.get_effectors_attri("move")/32)
-        new_x = entity.get_pos()[0] + round(data[0]*max_range)
-        new_y = entity.get_pos()[1] + round(data[1]*max_range)
+        dx = round(data[0]*max_range)
+        dy = round(data[1]*max_range)
+        x = entity.get_pos()[0]
+        y = entity.get_pos()[1]
+        
         try:
-            self.locs[(new_y,new_x)].request("move",entity) # type: ignore
-            self.requested_locs.append(self.locs[(new_y,new_x)]) # type: ignore
+            scale = 0.1
+            while self.locs[round(entity.get_pos()[1] + scale*dy)][round(entity.get_pos()[0] + scale*dx)].entity == None and scale <= 1: # type: ignore
+                x = round(entity.get_pos()[0] + scale*dx)
+                y = round(entity.get_pos()[1] + scale*dy)
+                scale += 0.1
         except IndexError:
             pass
+        
+        self.locs[(y,x)].request("move",entity) # type: ignore
+        self.requested_locs.append(self.locs[(y,x)]) # type: ignore
+
+    # def request_move(self, entity: Entity, data: list):
+    #     max_range: int = round(entity.get_effectors_attri("move")/32)
+    #     new_x = entity.get_pos()[0] + round(data[0]*max_range)
+    #     new_y = entity.get_pos()[1] + round(data[1]*max_range)
+    #     try:
+    #         self.locs[(new_y,new_x)].request("move",entity) # type: ignore
+    #         self.requested_locs.append(self.locs[(new_y,new_x)]) # type: ignore
+    #     except IndexError:
+    #         pass
 
     def process(self):
         """pass data through each entity's processor and link it to the corresponding loc"""

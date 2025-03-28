@@ -52,7 +52,7 @@ class Entity(ABC):
         self.effectors_attri: dict[str, int] = {EFFECTORS[effector_count]: effector_code[effector_count] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
         self.effectors: dict[str, list] = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
 
-        # Neurons (unimplemented yet :( )
+        # Neurons (not implemented yet :( )
     
     # seter function to give input
 
