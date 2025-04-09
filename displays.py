@@ -72,7 +72,7 @@ class Displays:
                 round_file.close()
 
             round_num = round_data['round']
-            round_pop = round_data['population']
+            round_pop = round_data['population']                        
             genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
 
             frame, axs = plt.subplots(1,1)

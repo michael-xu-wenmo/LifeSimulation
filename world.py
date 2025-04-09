@@ -102,16 +102,6 @@ class World:
         self.locs[(y,x)].request("move",entity) # type: ignore
         self.requested_locs.append(self.locs[(y,x)]) # type: ignore
 
-    # def request_move(self, entity: Entity, data: list):
-    #     max_range: int = round(entity.get_effectors_attri("move")/32)
-    #     new_x = entity.get_pos()[0] + round(data[0]*max_range)
-    #     new_y = entity.get_pos()[1] + round(data[1]*max_range)
-    #     try:
-    #         self.locs[(new_y,new_x)].request("move",entity) # type: ignore
-    #         self.requested_locs.append(self.locs[(new_y,new_x)]) # type: ignore
-    #     except IndexError:
-    #         pass
-
     def process(self):
         """pass data through each entity's processor and link it to the corresponding loc"""
         for loc in self.occupied_locs:

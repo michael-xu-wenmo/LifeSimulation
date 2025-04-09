@@ -5,12 +5,10 @@ import random
 class Dummy(Entity):
 
     def __call__(self):
-        #x: float = random.random()
-        #x: float = random.choice([-1,1]) * x
-        #y: float = random.random()
-        #y = random.choice([-1,1]) * y
-        x = 1
-        y = 0
+        x: float = random.random()
+        x: float = random.choice([-1,1]) * x
+        y: float = random.random()
+        y = random.choice([-1,1]) * y
         
         self.effectors["move"] = [x,y]
         return self.effectors

@@ -12,8 +12,7 @@ def main():
     # world initialisation
     world = World(WORLD_SIZE)
     
-    #world.gen_pop_map(POPULATION) # generating the population distribution
-    world.set_pop_map(np.array([[True for _ in range(32)] + [False for _ in range(32)] for _ in range(64)]))
+    world.gen_pop_map(POPULATION) # generating the population distribution
 
     world.populate("Dummy") # creating the entities
     world.update() # initialise each entity's initial state
