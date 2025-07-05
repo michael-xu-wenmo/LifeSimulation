@@ -1,7 +1,8 @@
-from world import World
-import utilities
+from worldobj import World
+from utilities import progress_bar
 
 import matplotlib.pyplot as plt
+from matplotlib.markers import MarkerStyle
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import json
 import os
@@ -13,7 +14,7 @@ class Displays:
         self.directory = directory
         self.world = world
 
-        # initiate the folder
+        # initialise the folder
         count = 1
         while os.path.exists(self.directory):
             print(f'Directory "{self.directory}" already exists - Renaming to "{directory}({count})"')
@@ -66,14 +67,23 @@ class Displays:
         total = len(round_files)
         for round_file_name in round_files:
             count += 1
-            utilities.progress_bar(count,total)
+            progress_bar(count,total)
             with open(f"{self.directory}/rounds_json/{round_file_name}", "r", encoding='utf-8') as round_file:
                 round_data = json.loads(round_file.read())
                 round_file.close()
 
             round_num = round_data['round']
             round_pop = round_data['population']                        
-            genomes = list(map(lambda entities: "#"+entities[0][:6], round_data["entities"]))
+
+            colors = []
+            markers: list[MarkerStyle]= []
+            for entity in round_data["entities"]:
+                if entity[2] == 0:
+                    colors.append("red")
+                    #markers.append(MarkerStyle("cross"))
+                else:
+                    colors.append("#"+entity[0][:6])
+                    #markers.append(MarkerStyle("dot"))
 
             frame, axs = plt.subplots(1,1)
             frame.suptitle(f"Round: {round_num} | Population: {round_pop}")
@@ -81,7 +91,9 @@ class Displays:
             axs.set_ylim(0, y_range)
             x = list(map(lambda entities: entities[1][0], round_data["entities"]))
             y = list(map(lambda entities: entities[1][1], round_data["entities"]))
-            axs.scatter(x,y, s = 1, c = genomes)
+
+            axs.scatter(x,y, s = 1, c = colors)
+            
 
             frame.savefig(f"{self.directory}/rounds_frames/frame_{round_num}")
             plt.close(frame)

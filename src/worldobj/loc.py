@@ -38,6 +38,13 @@ class Loc:
         else:
             return False
     
+    def kill_entity(self):
+        if self.entity != None:
+            self.entity.set_points(0)
+            self.entity = None
+            return True
+        return False
+    
     # methods used to set the entity's inputs
     def give_pos(self):
         try:

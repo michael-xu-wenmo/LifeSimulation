@@ -1,7 +1,6 @@
-from loc import Loc
+from worldobj.loc import Loc
 import organisms
 from organisms.entity import Entity # only for typing
-import utilities
 
 import numpy as np
 from numpy import random
@@ -36,7 +35,7 @@ class World:
         inner_state = {
             "round": self.round,
             "population": self.population,
-            "entities": list(map(lambda entity: (entity.get_genome(),entity.get_pos()),self.entities))
+            "entities": list(map(lambda entity: (entity.get_genome(),entity.get_pos(),entity.get_points()),self.entities))
         }
         return inner_state
 
@@ -77,10 +76,13 @@ class World:
     #### simulation methods ###
     
     def update(self):
-        """update each entities' receptor"""
-        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))#
-        for loc in self.occupied_locs:
-            loc.give_pos() # update the "global_position" sensor
+        """Corpse remover"""
+        deads = set()
+        for entity in self.entities:
+            if entity.get_points() == 0:
+                deads.add(entity)
+        self.entities.difference_update(deads)
+        self.population = len(self.entities)
 
     # request senders
     def request_move(self, entity: Entity, data: list):
@@ -109,6 +111,7 @@ class World:
             if entity == None:
                 continue
             requests = entity()
+
             for request, data in requests.items():
                 if data == []:
                     continue
@@ -131,17 +134,8 @@ class World:
                 if data == []:
                     continue
                 getattr(self, request)(data, loc)
+        
+        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))#
+        for loc in self.occupied_locs:
+            loc.give_pos() # update the "global_position" sensor
     
-    # simulation loop
-    def __call__(self, total_rounds: int, historian):
-        print("Starting the simulation:")
-        for _ in range(total_rounds):
-            self.round += 1
-            utilities.progress_bar(self.round, total_rounds)
-
-            self.process()
-            self.resolve_requests()
-            self.update()
-            # historian recording the history
-            historian.export_round()
-        print(f'\nDone - Data exported to "{historian.directory}"')

@@ -4,8 +4,6 @@ from abc import ABC, abstractmethod
 
 # Receptors (inner attributes) passively receives input from the Loc (e.g. surrounding entities density; the sensitivities are determined by gene)
 
-# Potentially a way to simulate learning as well as natural selection? The time complexity will be insane.
-
 # Prameters to the input layor (receptor neuron) (in_feature = <Whatever receptors are activated>, out_feature = <Whatever width are setted by gene>)
 # Forward through the hidden layors (relay neuron) (depth determined by gene; weight determined by gene)
 # But what algorithm should be used (Synapse connectivity)? Linear or none Linear (Relu, Sigmoid, or what)? Determined by gene?
@@ -39,7 +37,7 @@ class Entity(ABC):
         self.genome: str = genome # Sets the hyperparameters of the nn and other attributes according to the genome
         self.pos: tuple[int, int] = pos # a utility attribute that only the World/Loc should access. The entity itself shouldn't use it.
  
-        self.points = 0 # inner stat
+        self.points = 1 # inner stat
 
         sensor_code, input_code, hidden_code, output_code, effector_code = self.genome.split('|')
         # sensors created with corresponding sensor strengths
@@ -53,13 +51,13 @@ class Entity(ABC):
         self.effectors: dict[str, list] = {EFFECTORS[effector_count]: [] for effector_count in range(len(effector_code)) if EFFECTORS[effector_count] not in disabled}
         # Neurons (not implemented yet :( )
     
-    # seter function to give input
+    # sensor function to give input
 
     def receive(self, sensor:str, value:list) -> dict[str, list]:
         self.sensor[sensor] = value
         return self.sensor
 
-    # geter functions
+    # getter functions
     def get_genome(self) -> str:
         return self.genome
     
@@ -74,6 +72,10 @@ class Entity(ABC):
     
     def get_effectors_attri(self, effector:str)  -> int:
         return self.effectors_attri[effector]
+    
+    # setter functions
+    def set_points(self, points):
+        self.points = points 
     
     @abstractmethod
     def __call__(self) -> dict[str, list]:
