@@ -1,11 +1,12 @@
 from worldobj import World
-from utilities import progress_bar
+from utilities.progress_bar import progress_bar
+from utilities.filename_sorter import filename_sorter
 
+import os
+import json
 import matplotlib.pyplot as plt
 from matplotlib.markers import MarkerStyle
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
-import json
-import os
 
 # A class used to record the simulation to a given folder.
 
@@ -108,11 +109,14 @@ class Displays:
         clip.write_videofile(f"{self.directory}/sim_recording.mp4", codec='libx264')
 
     # export a picture of the population graph
-    def gen_pop_graph(self, identifier = None):
+    def gen_pop_graph(self):
         print("Generating population graph - ", end = '')
         rounds = []
         population_change = []
+
         round_files = os.listdir(f"{self.directory}/rounds_json/") # a list of all the round files
+        round_files = filename_sorter(round_files, "round_")
+
         for round_file_name in round_files:
             with open(f"{self.directory}/rounds_json/{round_file_name}", "r", encoding='utf-8') as round_file:
                 round_data = json.loads(round_file.read())
@@ -125,9 +129,12 @@ class Displays:
         
         graph, axs = plt.subplots(1,1)
         graph.suptitle("Population graph")
+
         axs.plot(rounds, population_change)
         axs.set_ylabel("Population")
         axs.set_xlabel("Rounds")
+
         graph.savefig(f"{self.directory}/population_graph")
         plt.close(graph)
+
         print(f'Graph generated in "{self.directory}"')

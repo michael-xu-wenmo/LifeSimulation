@@ -13,7 +13,7 @@ class Checker():
             raw = json.loads(file.read())
             file.close()
         for entity in raw["entities"]:
-            yield tuple(entity[1])
+            yield tuple(entity[1] + [entity[2]])
 
     @staticmethod
     def check(arr):

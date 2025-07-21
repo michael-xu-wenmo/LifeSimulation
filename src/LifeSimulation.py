@@ -5,34 +5,27 @@ from utilities import Displays
 from utilities import progress_bar
 from utilities import Checker
 
-import numpy as np
-
-def main():
-    ROUNDS = 256
-    FPS = 30 
-    WORLD_SIZE = (64,64)
-    POPULATION = 1024
-    FOLDER = "dev_sim_records" # the repository to save all of the records
+def main(world_size, population, rounds, folder, fps):
 
     # world initialisation
-    world = World(WORLD_SIZE)
+    world = World(world_size)
     
-    world.gen_pop_map(POPULATION) # generating the population distribution
+    world.gen_pop_map(population) # generating the population distribution
 
     world.populate("Dummy") # creating the entities
     world.update() # initialise each entity's initial state
 
     # selector initialisation
-    selector = Selection(world, [[True for _ in range(WORLD_SIZE[0]//2)]+[False for _ in range(WORLD_SIZE[0]//2)] for _ in range(WORLD_SIZE[1])])
+    selector = Selection(world, [[True for _ in range(world_size[0]//2)]+[False for _ in range(world_size[0]//2)] for _ in range(world_size[1])])
 
     # historian initialisation
-    historian = Displays(FOLDER, world)
+    historian = Displays(folder, world)
     historian.export_round() # export the state of round 0
 
     print("Starting the simulation:")
-    for _ in range(ROUNDS):
+    for _ in range(rounds):
         world.round += 1
-        progress_bar(world.round, ROUNDS)
+        progress_bar(world.round, rounds)
 
         world.process()
         world.resolve_requests()
@@ -45,7 +38,7 @@ def main():
 
     historian.gen_frames() # generating the frames for the video
     historian.gen_pop_graph() # generating the population graph
-    historian.gen_video(FPS)
+    historian.gen_video(fps)
 
     # Checks for overlapping in position
     checker = Checker("dev_sim_records")
@@ -54,5 +47,11 @@ def main():
             print(state)
 
 if __name__ == '__main__':
-    main()
+    ROUNDS = 256
+    FPS = 30 
+    WORLD_SIZE = (64,64)
+    POPULATION = 1024
+    FOLDER = "dev_sim_records" # the repository to save all of the records
+
+    main(WORLD_SIZE, POPULATION, ROUNDS, FOLDER, FPS)
     print("PROGRAM ENDED")
