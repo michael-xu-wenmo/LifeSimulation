@@ -36,11 +36,11 @@ def main(world_size, population, rounds, folder, fps):
 
     print(f'\nDone - Data exported to "{historian.directory}"')
 
-    historian.gen_frames() # generating the frames for the video
-    historian.gen_pop_graph() # generating the population graph
+    historian.gen_frames() # generating frames for video
+    historian.gen_pop_graph() # generating population graph
     historian.gen_video(fps)
 
-    # Checks for overlapping in position
+    # Checks for overlap in position
     checker = Checker("dev_sim_records")
     for state in checker.check_file():
         if state[1]:
@@ -54,4 +54,3 @@ if __name__ == '__main__':
     FOLDER = "dev_sim_records" # the repository to save all of the records
 
     main(WORLD_SIZE, POPULATION, ROUNDS, FOLDER, FPS)
-    print("PROGRAM ENDED")
