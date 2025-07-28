@@ -27,14 +27,13 @@ class World:
         self.entities: set[Entity] = set()
         self.occupied_locs: list[Loc] = []
         self.requested_locs: list[Loc] = []
-        self.population = len(self.entities)
         print("Done")
 
     # export internal state to a dictionary
     def export(self):
         inner_state = {
             "round": self.round,
-            "population": self.population,
+            "population": len(self.entities),
             "entities": list(map(lambda entity: (entity.get_genome(),entity.get_pos(),entity.get_points()),self.entities))
         }
         return inner_state
@@ -66,7 +65,6 @@ class World:
                         self.entities.add(entity)
                     else:
                         del entity
-        self.population = len(self.entities)
         print("Done")
 
     def gen_food(self, number, distribution):
@@ -74,15 +72,23 @@ class World:
         return
     
     #### simulation methods ###
+    def update_attri_pos(self):
+        for row in range(self.height):
+            for column in range(self.width):
+                self.locs[row][column].give_attri_pos()
     
-    def update(self):
+    def update_deaths(self):
         """Corpse remover"""
         deads = set()
         for entity in self.entities:
             if entity.get_points() == 0:
                 deads.add(entity)
         self.entities.difference_update(deads)
-        self.population = len(self.entities)
+    
+    def update_sensors(self):
+        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))#
+        for loc in self.occupied_locs:
+            loc.give_pos() # update the "global_position" sensor
 
     # request senders
     def request_move(self, entity: Entity, data: list):
@@ -106,10 +112,10 @@ class World:
 
     def process(self):
         """pass data through each entity's processor and link it to the corresponding loc"""
-        for loc in self.occupied_locs:
-            entity = loc.entity # process its actions
-            if entity == None:
+        for entity in self.entities:
+            if entity.points <= 0:
                 continue
+
             requests = entity()
 
             for request, data in requests.items():
@@ -134,8 +140,3 @@ class World:
                 if data == []:
                     continue
                 getattr(self, request)(data, loc)
-        
-        self.occupied_locs: list[Loc] = list(map(lambda entity: self.locs[(entity.get_pos()[1],entity.get_pos()[0])],self.entities))#
-        for loc in self.occupied_locs:
-            loc.give_pos() # update the "global_position" sensor
-    

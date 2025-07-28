@@ -20,8 +20,9 @@ class Loc:
             return False
     
     def remove_entity(self):
+        entity = self.entity
         self.entity = None
-        return True
+        return entity
     
     def remove_food(self):
         if self.food != None:
@@ -44,6 +45,10 @@ class Loc:
             self.entity = None
             return True
         return False
+    
+    def give_attri_pos(self):
+        if self.entity != None:
+            self.entity.pos = self.POS
     
     # methods used to set the entity's inputs
     def give_pos(self):

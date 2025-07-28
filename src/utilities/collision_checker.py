@@ -13,7 +13,8 @@ class Checker():
             raw = json.loads(file.read())
             file.close()
         for entity in raw["entities"]:
-            yield tuple(entity[1] + [entity[2]])
+            if entity[2] > 0:
+                yield tuple(entity[1])
 
     @staticmethod
     def check(arr):
@@ -23,7 +24,7 @@ class Checker():
         for position in arr:
 
             if position in exists:
-                return True
+                return position
             exists.add(position) 
 
         return False
